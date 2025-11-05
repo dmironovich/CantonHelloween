@@ -64,10 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     jump() {
       if (this.onGround || !doubleJumpUsed) {
-        this.dy = -jumpPower;
-        this.onGround = false;
-        if (!this.onGround) doubleJumpUsed = true;
-        jumpSound.play();
+        if (this.y > 50) {
+          this.dy = -jumpPower;
+          this.onGround = false;
+          if (!this.onGround) doubleJumpUsed = true;
+          jumpSound.play();
+        }
       }
     }
   }
@@ -81,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function spawnPumpkin() {
-    const y = Math.random() * (canvas.height - 200) + 100;
+    const y = canvas.height - 130;
     pumpkins.push({ x: canvas.width, y });
   }
 
@@ -156,14 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startGame() {
-    setTimeout(spawnObstacle, 1000); // первый пенек на секунду раньше
-    setInterval(() => spawnObstacle(), Math.random() * 2000 + 1000);
+    setTimeout(spawnObstacle, 1000);
+    setInterval(() => spawnObstacle(), Math.random() * 1000 + 1500);
     setInterval(() => spawnPumpkin(), Math.random() * 2000 + 1000);
     setInterval(() => speed *= 1.1, 15000);
     gameLoop();
   }
 
   window.addEventListener("keydown", e => {
-    if (e.code === "Space") player.jump();
-  });
-});
+    if (e.code === "Space") player.jump
