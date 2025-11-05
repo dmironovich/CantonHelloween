@@ -1,179 +1,168 @@
-// Rialo Halloween Run - simple Chrome Dino-like game with pumpkin pickups and leaderboard.
-// Place your character image named "player.png" in the same folder as index.html.
-// The provided ZIP includes a placeholder player.png which you can replace.
-
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const menu = document.getElementById('menu');
-const startBtn = document.getElementById('startBtn');
-const playerNameInput = document.getElementById('playerName');
-const leaderboardList = document.getElementById('leaderboard');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 let playerName = "";
-let playerImg = new Image();
-playerImg.src = 'player.png'; // <-- Put your image here (recommended size ~64x64)
-
-/* Game state */
-let player = { x: 50, y: 200, width: 64, height: 64, dy: 0, jumpForce: 14, grounded: false };
-let gravity = 0.8;
-let obstacles = [];
-let pumpkins = [];
 let score = 0;
-let pumpkinCount = 0;
-let speed = 6;
+let pumpkins = [];
+let obstacles = [];
+let speed = 5;
+let gravity = 1;
+let jumpPower = 15;
+let doubleJumpUsed = false;
 let gameOver = false;
-let frame = 0;
-let groundY = 240;
+let leaderboard = [];
 
-/* Resize canvas for high DPI */
-function fixDPI() {
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = 900 * ratio;
-  canvas.height = 300 * ratio;
-  canvas.style.width = '900px';
-  canvas.style.height = '300px';
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-}
-fixDPI();
+const characterImg = new Image();
+characterImg.src = "assets/character.png";
 
-/* Menu and leaderboard */
-function updateLeaderboard() {
-  const data = JSON.parse(localStorage.getItem('rialo_leaderboard') || '[]');
-  leaderboardList.innerHTML = data.map(d => `<li>${escapeHtml(d.name)} — ${d.score} 🎃</li>`).join('');
-}
-function saveScore() {
-  const data = JSON.parse(localStorage.getItem('rialo_leaderboard') || '[]');
-  data.push({ name: playerName, score: pumpkinCount });
-  data.sort((a,b) => b.score - a.score);
-  localStorage.setItem('rialo_leaderboard', JSON.stringify(data.slice(0, 10)));
-}
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>'&'+{ '&':'amp','<':'lt','>':'gt','"':'quot'}[c]+';'); }
+const bgMusic = new Audio("assets/sounds/background.mp3");
+const jumpSound = new Audio("assets/sounds/jump.mp3");
+const collectSound = new Audio("assets/sounds/collect.mp3");
 
-/* Start/reset */
-function startGame() {
-  playerName = (playerNameInput.value || 'Игрок').trim();
-  menu.style.display = 'none';
-  canvas.style.display = 'block';
-  resetGame();
-  requestAnimationFrame(loop);
-}
+bgMusic.loop = true;
+bgMusic.volume = 0.5;
 
-function resetGame() {
-  player.y = groundY - player.height;
-  player.dy = 0;
-  obstacles = [];
-  pumpkins = [];
-  score = 0;
-  pumpkinCount = 0;
-  speed = 6;
-  gameOver = false;
-  frame = 0;
-}
+document.getElementById("start-button").onclick = () => {
+  playerName = document.getElementById("player-name").value || "Anonymous";
+  document.getElementById("start-screen").style.display = "none";
+  bgMusic.play();
+  startGame();
+};
 
-/* Input */
-function jump() {
-  if (player.grounded) {
-    player.dy = -player.jumpForce;
-    player.grounded = false;
-  }
-}
-document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); jump(); } });
-document.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+document.getElementById("restart-button").onclick = () => {
+  location.reload();
+};
 
-/* Game loop */
-function loop() {
-  if (gameOver) return endGame();
-  frame++;
-  // Clear
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // Background sky
-  ctx.fillStyle = '#1a1a1a';
-  ctx.fillRect(0,0,900,300);
-
-  // Ground
-  ctx.fillStyle = '#0b0b0b';
-  ctx.fillRect(0, groundY, 900, 60);
-
-  // Player physics
-  player.dy += gravity;
-  player.y += player.dy;
-  if (player.y > groundY - player.height) {
-    player.y = groundY - player.height;
-    player.dy = 0;
-    player.grounded = true;
+class Player {
+  constructor() {
+    this.x = 100;
+    this.y = canvas.height - 150;
+    this.width = 80;
+    this.height = 80;
+    this.dy = 0;
+    this.onGround = true;
   }
 
-  // Spawn obstacles
-  if (frame % Math.max(60, 120 - Math.floor(frame/500)) === 0) {
-    const h = 30 + Math.random()*50;
-    obstacles.push({ x: 900, y: groundY - h, width: 20 + Math.random()*20, height: h });
+  draw() {
+    ctx.drawImage(characterImg, this.x, this.y, this.width, this.height);
   }
 
-  // Spawn pumpkins
-  if (frame % 150 === 0) {
-    pumpkins.push({ x: 900, y: groundY - 80 - Math.random()*80, size: 32 });
-  }
+  update() {
+    this.y += this.dy;
+    this.dy += gravity;
 
-  // Move & draw obstacles
-  ctx.fillStyle = '#5b3a2e';
-  for (let i = obstacles.length-1; i >= 0; i--) {
-    const o = obstacles[i];
-    o.x -= speed;
-    ctx.fillRect(o.x, o.y, o.width, o.height);
-    if (o.x + o.width < -50) obstacles.splice(i,1);
-
-    // Collision
-    if (rectIntersect(player, o)) gameOver = true;
-  }
-
-  // Move & draw pumpkins (use emoji)
-  ctx.font = '28px Segoe UI Emoji';
-  for (let i = pumpkins.length-1; i >= 0; i--) {
-    const p = pumpkins[i];
-    p.x -= speed;
-    ctx.fillText('🎃', p.x, p.y);
-    if (p.x < -50) pumpkins.splice(i,1);
-
-    // Approx collision using bounding-box
-    const px = p.x, py = p.y-28, psize = 28;
-    if (player.x < px + psize && player.x + player.width > px && player.y < py + psize && player.y + player.height > py) {
-      pumpkinCount++;
-      pumpkins.splice(i,1);
+    if (this.y + this.height >= canvas.height - 50) {
+      this.y = canvas.height - 50 - this.height;
+      this.dy = 0;
+      this.onGround = true;
+      doubleJumpUsed = false;
     }
   }
 
-  // Draw player image (fallback to rectangle if not loaded)
-  if (playerImg.complete) {
-    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-  } else {
-    ctx.fillStyle = '#ffd54f';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+  jump() {
+    if (this.onGround || !doubleJumpUsed) {
+      this.dy = -jumpPower;
+      this.onGround = false;
+      if (!this.onGround) doubleJumpUsed = true;
+      jumpSound.play();
+    }
+  }
+}
+
+const player = new Player();
+
+function spawnObstacle() {
+  const height = Math.random() * 50 + 30;
+  const width = Math.random() * 30 + 30;
+  obstacles.push({ x: canvas.width, y: canvas.height - 50 - height, width, height });
+}
+
+function spawnPumpkin() {
+  const y = Math.random() * (canvas.height - 200) + 100;
+  pumpkins.push({ x: canvas.width, y });
+}
+
+function drawPumpkins() {
+  ctx.font = "30px Arial";
+  pumpkins.forEach((p, index) => {
+    ctx.fillText("🎃", p.x, p.y);
+    p.x -= speed;
+    if (
+      p.x < player.x + player.width &&
+      p.x + 30 > player.x &&
+      p.y < player.y + player.height &&
+      p.y + 30 > player.y
+    ) {
+      pumpkins.splice(index, 1);
+      score++;
+      collectSound.play();
+    }
+  });
+}
+
+function drawObstacles() {
+  ctx.fillStyle = "#444";
+  obstacles.forEach((obs, index) => {
+    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    obs.x -= speed;
+
+    if (
+      player.x < obs.x + obs.width &&
+      player.x + player.width > obs.x &&
+      player.y < obs.y + obs.height &&
+      player.y + player.height > obs.y
+    ) {
+      endGame();
+    }
+  });
+}
+
+function endGame() {
+  gameOver = true;
+  leaderboard.push({ name: playerName, score });
+  leaderboard.sort((a, b) => b.score - a.score);
+  document.getElementById("restart-button").style.display = "block";
+}
+
+function drawLeaderboard() {
+  const board = document.getElementById("leaderboard");
+  board.innerHTML = "<h3>Leaderboard</h3>";
+  leaderboard.slice(0, 5).forEach(entry => {
+    board.innerHTML += `<div>${entry.name}: 🎃 ${entry.score}</div>`;
+  });
+}
+
+function gameLoop() {
+  if (gameOver) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  player.update();
+  player.draw();
+  drawPumpkins();
+  drawObstacles();
+  drawLeaderboard();
+
+  if (score >= 100) {
+    gameOver = true;
+    ctx.font = "40px Arial";
+    ctx.fillStyle = "orange";
+    ctx.fillText("You are the real Canton Halloween Runner!", canvas.width / 2 - 300, canvas.height / 2);
+    document.getElementById("restart-button").style.display = "block";
   }
 
-  // HUD
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '18px Arial';
-  ctx.fillText(`🎃: ${pumpkinCount}`, 12, 26);
-  ctx.fillText(`Score: ${Math.floor(frame/10)}`, 12, 46);
-
-  // Increase difficulty slowly
-  if (frame % 600 === 0) speed += 0.5;
-
-  requestAnimationFrame(loop);
+  requestAnimationFrame(gameLoop);
 }
 
-function rectIntersect(a,b){
-  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+function startGame() {
+  setTimeout(spawnObstacle, 1000); // первый пенек на секунду раньше
+  setInterval(() => spawnObstacle(), Math.random() * 2000 + 1000);
+  setInterval(() => spawnPumpkin(), Math.random() * 2000 + 1000);
+  setInterval(() => speed *= 1.1, 15000);
+  gameLoop();
 }
 
-function endGame(){
-  saveScore();
-  setTimeout(()=>{ alert('Игра окончена. Ты собрал ' + pumpkinCount + ' 🎃'); }, 50);
-  menu.style.display = 'block';
-  canvas.style.display = 'none';
-  updateLeaderboard();
-}
+window.addEventListener("keydown", e => {
+  if (e.code === "Space") player.jump();
+});
 
-startBtn.addEventListener('click', startGame);
-updateLeaderboard();
