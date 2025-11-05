@@ -1,8 +1,9 @@
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background: url("assets/background.png") no-repeat center center;
+  background: url("assets/background/background.png") no-repeat center center;
   background-size: cover;
+  background-color: black;
   overflow: hidden;
   text-align: center;
 }
@@ -51,5 +52,4 @@ canvas {
   padding: 10px;
   border-radius: 5px;
 }
-
 
