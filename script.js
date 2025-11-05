@@ -101,7 +101,7 @@ document.addEventListener('keydown', e => { if(e.code === 'Space'){ e.preventDef
 document.addEventListener('touchstart', e => { e.preventDefault(); doJump(); });
 
 // Spawn logic: first obstacle at ~1000ms after start
-function spawnObstacle(){ const h = 30 + Math.random()*40; obstacles.push({ x:900, y: groundY - h, width: 20 + Math.random()*20, height: h }); }
+function spawnObstacle(){ const h = 100 + Math.random()*70; obstacles.push({ x:900, y: groundY - h, width: 20 + Math.random()*20, height: h }); }
 function spawnPumpkin(){ const y = groundY - 80 - Math.random()*80; pumpkins.push({ x:900, y: y, size:32 }); }
 function rectIntersect(a,b){ return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y; }
 
