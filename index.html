@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Canton Halloween Run</title>
+  <title>Rialo Halloween Run 🎃</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1 id="game-title">Canton Halloween Run</h1>
-  <div id="start-screen">
-    <input type="text" id="player-name" placeholder="Enter your name" />
-    <button id="start-button">Start Game</button>
+  <div class="menu" id="menu">
+    <h1>Rialo Halloween Run 🎃</h1>
+    <input type="text" id="playerName" placeholder="Введите имя" />
+    <button id="startBtn">Начать игру</button>
+    <h2>Лидерборд</h2>
+    <ul id="leaderboard"></ul>
+    <p class="hint">Управление: <strong>Пробел</strong> — прыжок. На мобильных коснитесь экрана.</p>
   </div>
-  <canvas id="gameCanvas"></canvas>
-  <div id="leaderboard"></div>
-  <button id="restart-button" style="display:none;">Restart</button>
-  <script src="game/game.js"></script>
+
+  <canvas id="gameCanvas" width="900" height="300"></canvas>
+  <script src="script.js"></script>
 </body>
 </html>
-
-
