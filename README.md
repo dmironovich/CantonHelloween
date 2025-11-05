@@ -1,35 +1,34 @@
-# 🎃 Rialo Halloween Run
+# Canton Halloween Run
 
-Это минимальная версия игры в стиле Chrome Dino, адаптированная под GitHub Pages.
+This is a Chrome-Dino-style browser game, updated for Halloween and customized to use your `canton.png` character.
+It includes double-jump, pumpkin pickups, an adaptive background, and local leaderboard storage (via localStorage).
 
-## Что в архиве
-- `index.html` — главный файл
-- `style.css` — стили
-- `script.js` — логика игры
-- `player.png` — **заглушка**: замените на своё изображение персонажа (см. ниже)
-- `README.md` — этот файл
+## Files
+- `index.html`
+- `style.css`
+- `script.js`
+- `canton.png` (your character image) - INCLUDED
+- `README.md`
 
-## Как добавить своё изображение персонажа
-Положи файл изображения рядом с `index.html` и назови его точно:
+## How to use
+1. Replace `canton.png` if you want to use a different image (recommended ~64x64). The game will scale it to ~1/6 of the canvas height.
+2. Open `index.html` in a browser or deploy to GitHub Pages (upload repository root to `main` branch).
 
-```
-player.png
-```
+## Controls
+- **Space** — Jump (press once to jump)
+- **Double Jump** — Press Space again while airborne to jump higher (second jump is stronger)
+- **Mobile** — Tap the screen to jump. Game is responsive; rotating to landscape gives best experience.
 
-Рекомендуемый размер: примерно 64x64 пикселя. Если твоё изображение больше — браузер само подгонит его под игровую область.
+## Gameplay specifics / tweaks
+- Speed increases by **10% every 15 seconds**.
+- First obstacle appears ~**1 second** after game start (earlier spawn).
+- Pumpkins (`🎃`) are collectible and are counted in the leaderboard.
+- All UI text is in English.
+- Background: sunset sky with gray clouds, bumpy grass, brown soil with stones under the ground.
+- Title displayed at top center: **Canton Halloween Run** (in orange).
 
-## Как запустить локально
-Просто открой `index.html` в браузере (Chrome/Firefox/etc.). Для полного опыта — опубликуй на GitHub Pages.
+## Publishing to GitHub Pages
+1. Create a new public repository.
+2. Upload all files to the repository root (or in `docs/` folder and choose that in Pages settings).
+3. In Settings → Pages, select the branch and folder, then save. The site becomes available at: `https://<your-username>.github.io/<repo-name>/`
 
-## Публикация на GitHub Pages
-1. Создай публичный репозиторий.
-2. Залей содержимое архива в корень репозитория (или в папку `docs/`).
-3. В настройках репозитория включи GitHub Pages (Branch: `main`, Folder: `/root` или `docs`).
-4. Через минуту игра будет доступна по URL `https://<твой_ник>.github.io/<название_репозитория>/`
-
-## Особенности и управление
-- Прыжок: **Пробел** (на мобильных — касание экрана).
-- Собирай эмодзи-тыквы `🎃` — они считаются в лидерборде.
-- Перед началом введи своё имя — оно будет отображено в локальном лидерборде (localStorage).
-
-Удачи! 👻
