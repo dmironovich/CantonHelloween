@@ -1,22 +1,25 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rialo Halloween Run 🎃</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Canton Halloween Run</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="menu" id="menu">
-    <h1>Rialo Halloween Run 🎃</h1>
-    <input type="text" id="playerName" placeholder="Введите имя" />
-    <button id="startBtn">Начать игру</button>
-    <h2>Лидерборд</h2>
+  <div id="ui" class="menu">
+    <h1>Canton Halloween Run</h1>
+    <input id="playerName" type="text" placeholder="Enter your name" />
+    <button id="startBtn">Start Game</button>
+    <h2>Leaderboard</h2>
     <ul id="leaderboard"></ul>
-    <p class="hint">Управление: <strong>Пробел</strong> — прыжок. На мобильных коснитесь экрана.</p>
+    <p class="hint">Controls: Space — Jump / Double Jump. On mobile: tap to jump.</p>
   </div>
 
-  <canvas id="gameCanvas" width="900" height="300"></canvas>
+  <canvas id="gameCanvas" width="900" height="300" aria-label="Canton Halloween Run game"></canvas>
+
+  <div id="rotateHint" class="rotate">Rotate device for best experience</div>
+
   <script src="script.js"></script>
 </body>
 </html>
