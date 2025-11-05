@@ -166,4 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.addEventListener("keydown", e => {
-    if (e.code === "Space") player.jump
+    if (e.code === "Space") player.jump();
+  });
+});
